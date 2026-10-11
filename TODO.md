@@ -13,14 +13,14 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P0 `internal/db` (Connect, Migrate) + `cmd/migrate` — second run applies nothing; 5 SKUs / 2 parties / 4 issues; CHECK rejects overshoot (23514)
 
 ## Phase 2 — Receipt API
-- [ ] P0 `internal/store` CreateReceipt + GetIssue — vet clean
-- [ ] P0 `internal/api` + `cmd/api` — curl: 201, replay same body, overshoot 409, key reuse 422, unknown issue 404
+- [x] P0 `internal/store` CreateReceipt + GetIssue — vet clean
+- [x] P0 `internal/api` + `cmd/api` — curl: 201, replay same body, overshoot 409, key reuse 422, unknown issue 404, bad input 400; rejected requests wrote nothing
 
 ## Phase 3 — Mandatory tests
-- [ ] P0 `internal/testdb` schema-per-test helper
-- [ ] P0 Test A: concurrent receipts never overshoot
-- [ ] P0 Test B: idempotency-key replay creates nothing
-- [ ] P0 Mutation check: tests fail when the guarantees are removed
+- [x] P0 `internal/testdb` schema-per-test helper
+- [x] P0 Test A: concurrent receipts never overshoot (`TestConcurrentReceiptsNeverOvershoot`)
+- [x] P0 Test B: idempotency-key replay creates nothing (`TestReplayedKeyCreatesNothing`, `TestConcurrentSameKeyCreatesOneReceipt`, `TestReusedKeyWithDifferentBodyIsRejected`)
+- [x] P0 Mutation check: guard+CHECK removed → Test A fails; unique key removed → Test B fails; guard alone removed → CHECK backstop holds (now 409, was 500)
 
 ## Phase 4 — Mock accounting
 - [ ] P0 `internal/mockacct` + `cmd/mockacct` — duplicate client_ref → 409 with original external_ref

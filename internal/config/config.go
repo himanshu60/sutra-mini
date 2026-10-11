@@ -4,6 +4,7 @@ package config
 import (
 	"errors"
 	"io/fs"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -15,4 +16,12 @@ func LoadDotEnv() error {
 		return err
 	}
 	return nil
+}
+
+// String returns the variable's value, or def when it is unset or empty.
+func String(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }
