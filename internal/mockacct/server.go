@@ -3,6 +3,7 @@
 package mockacct
 
 import (
+	crand "crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,6 +34,7 @@ type Config struct {
 // Server holds the vouchers the mock has accepted.
 type Server struct {
 	cfg        Config
+	run        string // random tag, so references from different runs never collide
 	mu         sync.Mutex
 	refs       map[string]string // client_ref -> external_ref
 	duplicates int
@@ -40,7 +42,7 @@ type Server struct {
 
 // New returns an empty mock.
 func New(cfg Config) *Server {
-	return &Server{cfg: cfg, refs: make(map[string]string)}
+	return &Server{cfg: cfg, run: crand.Text()[:4], refs: make(map[string]string)}
 }
 
 // Handler serves POST /api/vouchers.
@@ -55,6 +57,14 @@ func (s *Server) Stats() (recorded, duplicates int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return len(s.refs), s.duplicates
+}
+
+// Ref returns the external_ref recorded for clientRef, if any.
+func (s *Server) Ref(clientRef string) (string, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	ref, ok := s.refs[clientRef]
+	return ref, ok
 }
 
 type voucherRequest struct {
@@ -105,7 +115,7 @@ func (s *Server) accept(clientRef string) (externalRef string, duplicate bool, o
 	if outcome == Fail {
 		return "", false, Fail
 	}
-	ref := fmt.Sprintf("ACC-%06d", len(s.refs)+1)
+	ref := fmt.Sprintf("ACC-%s-%06d", s.run, len(s.refs)+1)
 	s.refs[clientRef] = ref
 	return ref, false, outcome
 }

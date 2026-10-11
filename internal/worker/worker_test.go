@@ -178,8 +178,9 @@ func TestTimeoutThenReconciled(t *testing.T) {
 
 	e.processOne(cfg, 200*time.Millisecond)
 	v = e.voucher(id)
-	if v.Status != store.StatusPushed || v.ExternalRef == nil || *v.ExternalRef != "ACC-000001" {
-		t.Fatalf("after retry: status %s, external_ref %v; want pushed ACC-000001", v.Status, v.ExternalRef)
+	want, recorded := e.mock.Ref(v.ClientRef)
+	if !recorded || v.Status != store.StatusPushed || v.ExternalRef == nil || *v.ExternalRef != want {
+		t.Fatalf("after retry: status %s, external_ref %v; want pushed %q", v.Status, v.ExternalRef, want)
 	}
 	if recorded, dups := e.mock.Stats(); recorded != 1 || dups != 1 {
 		t.Fatalf("accounting has %d entries and refused %d duplicates, want 1 and 1", recorded, dups)
