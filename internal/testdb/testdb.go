@@ -65,7 +65,8 @@ func testURL(t *testing.T) string {
 	loadRepoDotEnv(t)
 	url := os.Getenv("TEST_DATABASE_URL")
 	if url == "" {
-		t.Skip("TEST_DATABASE_URL is not set: integration tests need a throwaway Postgres (see README)")
+		// Fail rather than skip: a skipped package still prints "ok", which reads as a pass.
+		t.Fatal("TEST_DATABASE_URL is not set: these tests need a throwaway Postgres (see README)")
 	}
 	return url
 }

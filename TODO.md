@@ -37,12 +37,12 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P1 Auto-refresh (3 s, `router.refresh()`)
 
 ## Phase 7 — Evaluator rehearsal
-- [ ] P0 Fresh clone runs from README
-- [ ] P0 Replay, 10 concurrent receipts, kill worker mid-hang + restart, two workers
+- [ ] P0 Fresh clone runs from README (on Neon — pending DATABASE_URL)
+- [x] P0 Replay, 10 concurrent receipts, kill worker mid-hang + restart, two workers — on a fresh local DB with the real binaries (repeat on Neon)
 
 ## Phase 8 — Docs & submission
-- [ ] P0 README.md
-- [ ] P0 AGENT_NOTES.md
+- [x] P0 README.md (Neon steps still to be confirmed by the Neon rehearsal)
+- [x] P0 AGENT_NOTES.md (Himanshu to review and make it his own)
 - [ ] P0 Recording script (≤ 3 min)
 - [ ] P0 Repo public, recording uploaded, links sent (Himanshu)
 
