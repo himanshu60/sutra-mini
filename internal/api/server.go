@@ -27,6 +27,8 @@ func NewHandler(st *store.Store) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /jobwork/receipts", s.createReceipt)
 	mux.HandleFunc("GET /issues/{id}", s.getIssue)
+	mux.HandleFunc("GET /vouchers", s.listVouchers)
+	mux.HandleFunc("POST /vouchers/{id}/retry", s.retryVoucher)
 	return withTimeout(mux, requestTimeout)
 }
 

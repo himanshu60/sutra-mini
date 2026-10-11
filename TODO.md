@@ -27,10 +27,10 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P1 Unit tests: duplicate wins over the random 500; 20 concurrent posts of one client_ref record it once
 
 ## Phase 5 — Worker + voucher endpoints
-- [ ] P0 `store` Claim / MarkPushed / MarkFailedAttempt / List / Retry
-- [ ] P0 `internal/worker` + `cmd/worker` (timeouts, backoff, leases, shutdown)
-- [ ] P0 `GET /vouchers?status=`, `POST /vouchers/{id}/retry`
-- [ ] P1 Worker tests: 409 reconcile, 500→retry, exhausted→failed, lease recovery, two workers, hang isolation
+- [x] P0 `store` ClaimVoucher / MarkPushed / MarkRetry / MarkFailed / ListVouchers / RetryVoucher
+- [x] P0 `internal/worker` + `cmd/worker` (timeouts, backoff, leases, shutdown) — live: 500 → backoff → failed with reason → manual retry → pushed
+- [x] P0 `GET /vouchers?status=`, `POST /vouchers/{id}/retry` — 400 bad status, 404 missing, 409 not failed
+- [x] P1 Worker tests (7): crash→409 reconcile, live lease respected, 500→backoff→pushed, exhausted→failed→manual retry, two workers no duplicates, hang isolation, timeout→409 reconcile; mutation-checked (lease removed, 409 not treated as success)
 
 ## Phase 6 — Next.js `/sync`
 - [ ] P0 Page grouped by status, attempts, failure reason, Retry button, loading/empty/error states
