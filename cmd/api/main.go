@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -38,16 +39,19 @@ func run() error {
 	defer pool.Close()
 
 	srv := &http.Server{
-		Addr:              config.String("API_ADDR", ":8080"),
 		Handler:           api.NewHandler(store.New(pool)),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
+	ln, err := net.Listen("tcp", config.String("API_ADDR", ":8080"))
+	if err != nil {
+		return err
+	}
 	errc := make(chan error, 1)
-	go func() { errc <- srv.ListenAndServe() }()
-	slog.Info("api listening", "addr", srv.Addr)
+	go func() { errc <- srv.Serve(ln) }()
+	slog.Info("api listening", "addr", ln.Addr().String())
 
 	select {
 	case err := <-errc:

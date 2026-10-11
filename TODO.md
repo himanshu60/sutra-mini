@@ -33,8 +33,8 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P1 Worker tests (7): crash→409 reconcile, live lease respected, 500→backoff→pushed, exhausted→failed→manual retry, two workers no duplicates, hang isolation, timeout→409 reconcile; mutation-checked (lease removed, 409 not treated as success)
 
 ## Phase 6 — Next.js `/sync`
-- [ ] P0 Page grouped by status, attempts, failure reason, Retry button, loading/empty/error states
-- [ ] P1 Auto-refresh
+- [x] P0 Page grouped by status, attempts, failure reason, Retry button, loading/empty/error states — tsc, eslint, `next build` clean; rendered over HTTP; Retry server action exercised (accepted / refused / API down). Still to do: one click in a real browser (Himanshu)
+- [x] P1 Auto-refresh (3 s, `router.refresh()`)
 
 ## Phase 7 — Evaluator rehearsal
 - [ ] P0 Fresh clone runs from README
