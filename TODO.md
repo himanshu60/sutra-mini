@@ -23,8 +23,8 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P0 Mutation check: guard+CHECK removed → Test A fails; unique key removed → Test B fails; guard alone removed → CHECK backstop holds (now 409, was 500)
 
 ## Phase 4 — Mock accounting
-- [ ] P0 `internal/mockacct` + `cmd/mockacct` — duplicate client_ref → 409 with original external_ref
-- [ ] P1 Unit test: duplicate wins over the random 500
+- [x] P0 `internal/mockacct` + `cmd/mockacct` — duplicate client_ref → 409 with original external_ref; 500 calls gave 21% 500s, 9% hangs
+- [x] P1 Unit tests: duplicate wins over the random 500; 20 concurrent posts of one client_ref record it once
 
 ## Phase 5 — Worker + voucher endpoints
 - [ ] P0 `store` Claim / MarkPushed / MarkFailedAttempt / List / Retry
