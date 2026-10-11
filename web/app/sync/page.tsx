@@ -1,91 +1,106 @@
 import { Suspense } from "react";
 import { listVouchers, type Voucher, type VoucherStatus } from "./api";
 import { AutoRefresh } from "./auto-refresh";
-import { RetryButton } from "./retry-button";
+import { formatRupees } from "./format";
+import { AlertIcon } from "./icons";
+import styles from "./sync.module.css";
+import { VoucherSection } from "./voucher-section";
 
-const groups: VoucherStatus[] = ["pending", "failed", "pushed"];
+const groups: VoucherStatus[] = ["failed", "pending", "pushed"];
 
 export default function SyncPage() {
   return (
-    <main>
-      <h1>Voucher sync</h1>
-      <p>Refreshes every 3 seconds.</p>
-      <AutoRefresh intervalMs={3000} />
-      <Suspense fallback={<p>Loading vouchers…</p>}>
-        <VoucherGroups />
-      </Suspense>
-    </main>
+    <>
+      <header className={styles.topbar}>
+        <div className={styles.brand}>
+          <span className={styles.logo}>S</span>
+          <div>
+            <div className={styles.brandName}>Sutra</div>
+            <div className={styles.brandSub}>Job-work accounting</div>
+          </div>
+        </div>
+        <span className={styles.live}>
+          <span className={styles.liveDot} />
+          Live · refreshes every 3s
+        </span>
+      </header>
+
+      <main className={styles.main}>
+        <div className={styles.pageHead}>
+          <h1>Voucher sync</h1>
+          <p>Every job-work receipt creates an accounting voucher. This is where each one stands with the accounting system.</p>
+        </div>
+        <AutoRefresh intervalMs={3000} />
+        <Suspense fallback={<DashboardSkeleton />}>
+          <Dashboard />
+        </Suspense>
+      </main>
+    </>
   );
 }
 
-async function VoucherGroups() {
+async function Dashboard() {
   const vouchers = await listVouchers();
   if (vouchers instanceof Error) {
-    return <p role="alert">Could not load vouchers. {vouchers.message}</p>;
+    return (
+      <div className={styles.alert} role="alert">
+        <AlertIcon />
+        <div>
+          <strong>Can’t load vouchers</strong>
+          <p>{vouchers.message}</p>
+          <p>
+            Check that the API is running (<code>go run ./cmd/api</code>) and that <code>SUTRA_API_URL</code> in{" "}
+            <code>web/.env.local</code> points at it.
+          </p>
+        </div>
+      </div>
+    );
   }
-  return groups.map((status) => (
-    <VoucherTable key={status} status={status} vouchers={vouchers.filter((v) => v.status === status)} />
-  ));
-}
 
-function VoucherTable({ status, vouchers }: { status: VoucherStatus; vouchers: Voucher[] }) {
+  const byStatus = (s: VoucherStatus) => vouchers.filter((v) => v.status === s);
   return (
-    <section>
-      <h2>
-        {status} ({vouchers.length})
-      </h2>
-      {vouchers.length === 0 ? (
-        <p>No {status} vouchers.</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Voucher</th>
-              <th>Type</th>
-              <th>Receipt</th>
-              <th>Amount</th>
-              <th>Attempts</th>
-              <th>{status === "pushed" ? "External ref" : "Status / last error"}</th>
-              <th>Updated</th>
-              {status === "failed" && <th />}
-            </tr>
-          </thead>
-          <tbody>
-            {vouchers.map((v) => (
-              <tr key={v.id}>
-                <td>{v.id}</td>
-                <td>{v.type}</td>
-                <td>{v.source_id}</td>
-                <td>{formatRupees(v.amount_paise)}</td>
-                <td>{v.attempts}</td>
-                <td>{detail(v)}</td>
-                <td>{new Date(v.updated_at).toLocaleTimeString("en-IN")}</td>
-                {status === "failed" && (
-                  <td>
-                    <RetryButton id={v.id} />
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
+    <>
+      <Stats vouchers={vouchers} />
+      {groups.map((status) => (
+        <VoucherSection key={status} status={status} vouchers={byStatus(status)} />
+      ))}
+    </>
   );
 }
 
-function detail(v: Voucher): string {
-  if (v.status === "pushed") return v.external_ref ?? "";
-  if (v.status === "failed") return v.last_error ?? "";
-  if (v.locked_by) return `pushing (worker ${v.locked_by})`;
-  if (v.last_error) {
-    return `retry at ${new Date(v.next_attempt_at).toLocaleTimeString("en-IN")}; last error: ${v.last_error}`;
-  }
-  return "queued";
+function Stats({ vouchers }: { vouchers: Voucher[] }) {
+  const count = (s: VoucherStatus) => vouchers.filter((v) => v.status === s).length;
+  const pushed = vouchers.filter((v) => v.status === "pushed");
+  const pushedPaise = pushed.reduce((sum, v) => sum + v.amount_paise, 0);
+
+  const cards = [
+    { tone: styles.failed, label: "Failed", value: count("failed"), hint: "need a manual retry" },
+    { tone: styles.pending, label: "Pending", value: count("pending"), hint: "queued or in flight" },
+    { tone: styles.pushed, label: "Pushed", value: count("pushed"), hint: "confirmed by accounting" },
+    { tone: styles.value, label: "Value pushed", value: formatRupees(pushedPaise), hint: `across ${pushed.length} vouchers` },
+  ];
+  return (
+    <div className={styles.stats}>
+      {cards.map((c) => (
+        <div key={c.label} className={`${styles.stat} ${c.tone}`}>
+          <div className={styles.statLabel}>{c.label}</div>
+          <div className={styles.statValue}>{c.value}</div>
+          <div className={styles.statHint}>{c.hint}</div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
-// formatRupees uses integer arithmetic on paise, so no floating-point rounding is involved.
-function formatRupees(paise: number): string {
-  const rupees = Math.trunc(paise / 100).toLocaleString("en-IN");
-  return `₹${rupees}.${String(paise % 100).padStart(2, "0")}`;
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className={styles.stats}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className={`${styles.skeleton} ${styles.skeletonStat}`} />
+        ))}
+      </div>
+      <div className={`${styles.skeleton} ${styles.skeletonTable}`} />
+    </>
+  );
 }

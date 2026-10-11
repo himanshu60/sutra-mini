@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  redirects() {
+    return [{ source: "/", destination: "/sync", permanent: false }];
+  },
 };
 
 export default nextConfig;
