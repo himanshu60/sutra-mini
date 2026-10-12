@@ -9,6 +9,8 @@
     checks, and tests that must fail when their guarantee is broken.
   - I reviewed and approved the plan.
   - I decided where tests run (a local Postgres) and that every verified phase gets its own commit.
+  - I asked for the `/sync` page to be redesigned after seeing the first, bare-HTML version. The brief says
+    "keep it plain", so the redesign stayed within one CSS module, with no UI library.
 - **Stack:** Go 1.27 toolchain (the module targets 1.25), pgx v5, godotenv, Next.js 16.4, Neon for the app
   database, and PostgreSQL 17.11 locally for the tests.
 
@@ -45,8 +47,13 @@ goes red, and the files were restored byte for byte.
    - A Server Action refreshes the page with `refresh()` from `next/cache`.
 
    It also noticed that the generated `web/.gitignore` (`.env*`) would have silently left `web/.env.example`
-   out of the repo.
-6. **Its own shell slips**, minor but real:
+   out of the repo. Later, its first redirect from `/` to `/sync` was a page that only called `redirect()`.
+   That tripped a Cache Components validation warning in the dev server, so the redirect moved to
+   `next.config.ts`.
+6. **The README overclaimed.** It said *every* test had been checked by breaking the code. Only the core ones
+   were: overshoot, idempotency, lease, and 409. Caught on a re-read before pushing; the README now lists exactly
+   what was mutation-checked.
+7. **Its own shell slips**, minor but real:
    - A `wait` in a shell that also had the servers in the background hung the session.
    - A throwaway `cp -r .` copied `node_modules` and `.env` into a temp folder, which was deleted.
    - The first attempt to install PostgreSQL via winget failed: EnterpriseDB's download server returned 403.
@@ -57,7 +64,8 @@ goes red, and the files were restored byte for byte.
 
 The catches above came out of checks I insisted on in the prompt rather than from reading diffs line by line.
 "Tests must fail if the guarantee is broken" became the mutation check that exposed #1, and "design for the
-evaluator's script" became the full rehearsal that exposed #2.
+evaluator's script" became the full rehearsal that exposed #2. When I ran the dashboard myself, I also pushed
+back on the first version of `/sync`, which was bare HTML tables.
 
 ## Trade-offs I would defend in review
 
