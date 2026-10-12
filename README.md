@@ -277,14 +277,18 @@ each `client_ref` appears in the mock's `created` lines once.
 2. Post a receipt. After two 500s the voucher is `failed`, with the reason, on `/sync`.
 3. Restart the mock normally and press **Retry**. The voucher is pushed.
 
-These scenarios were rehearsed end to end with the real binaries on a fresh database:
+These scenarios were rehearsed end to end with the real binaries, first on a fresh local database and again on
+Neon (PostgreSQL 18):
 
-| Scenario | Result |
+| Scenario | Result on Neon |
 |---|---|
-| Replay | identical body, `received` unchanged |
-| 10 concurrent receipts | 6×201 / 4×409, `received_qty` 18 |
-| Crash mid-hang | pushed with the original ref via 409; one accounting entry |
-| Two workers | 20 vouchers, 5×500 and 5 hangs → 20 entries, 0 duplicates |
+| Replay | identical body three times, `received` unchanged |
+| 10 concurrent receipts | issue 3: 6×201 / 4×409, `received_qty` 18 · issue 4: 8×201 / 2×409, `received_qty` 40 of 40 |
+| Crash mid-hang | worker killed during the hang; after the lease expired the new worker got 409 and stored the original ref; one accounting entry |
+| Two workers | 20 vouchers through 4×500 and 2 hangs → 20 entries, 0 duplicates, work split 10 / 10 |
+
+A fresh clone of this repo was also run through this README: `migrate`, `go vet`, `go test`, `npm install` and
+`npm run build` all pass.
 
 ## Configuration
 

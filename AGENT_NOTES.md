@@ -56,6 +56,9 @@ goes red, and the files were restored byte for byte.
 7. **Its own shell slips**, minor but real:
    - A `wait` in a shell that also had the servers in the background hung the session.
    - A throwaway `cp -r .` copied `node_modules` and `.env` into a temp folder, which was deleted.
+   - In the Neon rehearsal, ten parallel `curl`s appending to one file lost writes in Windows' bash. It looked
+     like 8 responses were missing, while the database showed the right totals. Writing one file per request
+     fixed the count.
    - The first attempt to install PostgreSQL via winget failed: EnterpriseDB's download server returned 403.
      The official 17.11 Windows binaries were taken from Maven Central instead (SHA-1 verified) and started
      with `initdb` + `pg_ctl` on localhost only.

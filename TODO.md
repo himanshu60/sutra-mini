@@ -5,11 +5,11 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 ## Phase 0 — Environment
 - [x] P0 Go installed (go1.27.0; module targets go 1.25) — `go version`
 - [x] P0 Local PostgreSQL 17.11 for tests (`C:\Users\DELL\pgsql17`, DB `sutra_test`, localhost only) — `pg_ctl status`
-- [ ] P0 Neon project created, direct URL in `.env` as `DATABASE_URL` — migrate connects
+- [x] P0 Neon project created, direct URL in `.env` as `DATABASE_URL` — migrate connects (PostgreSQL 18.6, Singapore)
 - [x] P0 `go.mod`, pgx/v5 + godotenv, `.gitignore`, `.env.example` — `.env` not in `git status`
 
 ## Phase 1 — Schema
-- [ ] P0 `migrations/0001_init.sql`, `0002_seed.sql` — applies on local PG ✔ and Neon (pending URL)
+- [x] P0 `migrations/0001_init.sql`, `0002_seed.sql` — applies on local PG and Neon; second run applies nothing
 - [x] P0 `internal/db` (Connect, Migrate) + `cmd/migrate` — second run applies nothing; 5 SKUs / 2 parties / 4 issues; CHECK rejects overshoot (23514)
 
 ## Phase 2 — Receipt API
@@ -37,11 +37,11 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 - [x] P1 Auto-refresh (3 s, `router.refresh()`)
 
 ## Phase 7 — Evaluator rehearsal
-- [ ] P0 Fresh clone runs from README (on Neon — pending DATABASE_URL)
-- [x] P0 Replay, 10 concurrent receipts, kill worker mid-hang + restart, two workers — on a fresh local DB with the real binaries (repeat on Neon)
+- [x] P0 Fresh clone from GitHub runs from README: migrate on Neon, vet, test, npm install, npm run build
+- [x] P0 Replay, 10 concurrent receipts, kill worker mid-hang + restart, two workers — on a fresh local DB and on Neon
 
 ## Phase 8 — Docs & submission
-- [x] P0 README.md (Neon steps still to be confirmed by the Neon rehearsal)
+- [x] P0 README.md (Neon steps confirmed)
 - [x] P0 AGENT_NOTES.md (Himanshu to review and make it his own)
 - [x] P0 Code pushed to `main`; repo is public (checked anonymously)
 - [ ] P0 3-minute recording (Himanshu)
