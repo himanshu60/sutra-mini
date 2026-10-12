@@ -43,8 +43,9 @@ Ticked only after the acceptance check passed. P0 = required, P1 = important, P2
 ## Phase 8 — Docs & submission
 - [x] P0 README.md (Neon steps still to be confirmed by the Neon rehearsal)
 - [x] P0 AGENT_NOTES.md (Himanshu to review and make it his own)
-- [ ] P0 Recording script (≤ 3 min)
-- [ ] P0 Repo public, recording uploaded, links sent (Himanshu)
+- [x] P0 Code pushed to `main`; repo is public (checked anonymously)
+- [ ] P0 3-minute recording (Himanshu)
+- [ ] P0 Reply to the invite email with the repo and recording links (Himanshu)
 
 ## Phase 9 — Stretch
 - [ ] P2 `POST /ask` with read-only tools and logged tool calls
